@@ -1,0 +1,3 @@
+rootProject.name = 'Raytracing-In-A-Weekend'
+include 'Rational'
+
