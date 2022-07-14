@@ -120,4 +120,15 @@ public class Vector {
         double s = 1e-8;
         return (Math.abs(get(0)) < s) && (Math.abs(get(1)) < s) && (Math.abs(get(2)) < s);
     }
+
+    public Vector reflect(Vector normal) {
+        return this.subtract(normal.multiply(this.dot(normal)).multiply(2));
+    }
+
+    public Vector refract(Vector n, double etaIOverEtaT) {
+        var cosTheta = Math.min(negate().dot(n), 1.0);
+        Vector rOutPerp = (this.add(n.multiply(cosTheta))).multiply(etaIOverEtaT);
+        Vector rOutParallel = n.multiply(-Math.sqrt(Math.abs(1.0 - rOutPerp.length_squared())));
+        return rOutPerp.add(rOutParallel);
+    }
 }

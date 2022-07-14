@@ -1,9 +1,6 @@
 package io.github.eforrest8.rt.sampling;
 
-import io.github.eforrest8.rt.RTUtilities;
 import io.github.eforrest8.rt.camera.Camera;
-import io.github.eforrest8.rt.geometry.Hittable;
-import io.github.eforrest8.rt.camera.PerspectiveCamera;
 import io.github.eforrest8.rt.geometry.HittableList;
 import io.github.eforrest8.rt.geometry.Ray;
 import io.github.eforrest8.rt.geometry.Vector;
@@ -27,14 +24,11 @@ public class SingleSampler implements PixelSampler {
         double u = x / (double)(imageWidth - 1);
         double v = y / (double)(imageHeight - 1);
         Ray r = camera.getRay(u, v);
-        return scaleColor(r.rayColor(world, 3));
+        return r.rayColor(world, 5);
     }
 
-    private Vector scaleColor(Vector color) {
-        return new Vector(
-                RTUtilities.clamp(color.x(), 0, 0.999),
-                RTUtilities.clamp(color.y(), 0, 0.999),
-                RTUtilities.clamp(color.z(), 0, 0.999)
-        );
+    @Override
+    public int samples() {
+        return 1;
     }
 }

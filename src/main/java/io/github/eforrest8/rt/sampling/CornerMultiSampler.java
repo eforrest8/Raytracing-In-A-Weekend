@@ -1,7 +1,6 @@
 package io.github.eforrest8.rt.sampling;
 
 import io.github.eforrest8.rt.camera.Camera;
-import io.github.eforrest8.rt.geometry.Hittable;
 import io.github.eforrest8.rt.camera.PerspectiveCamera;
 import io.github.eforrest8.rt.geometry.HittableList;
 import io.github.eforrest8.rt.geometry.Ray;
@@ -48,5 +47,10 @@ public class CornerMultiSampler implements PixelSampler {
                 .add(samples[x][y+1])
                 .add(samples[x+1][y+1]);
         return pixelColor;
+    }
+
+    @Override
+    public int samples() {
+        return 4;
     }
 }

@@ -5,7 +5,9 @@ import io.github.eforrest8.rt.camera.PerspectiveCamera;
 import io.github.eforrest8.rt.geometry.HittableList;
 import io.github.eforrest8.rt.geometry.Sphere;
 import io.github.eforrest8.rt.geometry.Vector;
+import io.github.eforrest8.rt.materials.Dielectric;
 import io.github.eforrest8.rt.materials.Lambertian;
+import io.github.eforrest8.rt.materials.Metal;
 import io.github.eforrest8.rt.sampling.PixelSampler;
 import io.github.eforrest8.rt.sampling.RandomMultiSampler;
 import io.github.eforrest8.rt.sampling.SingleSampler;
@@ -32,9 +34,16 @@ public class RTRenderer implements Renderer {
     private final int[] pixels = new int[IMAGE_WIDTH*IMAGE_HEIGHT];
 
     public RTRenderer() {
-        world.add(new Sphere(new Vector(0, 0, -1), 0.5, new Lambertian(new Vector(0.8, 0.2, 0.2))));
-        world.add(new Sphere(new Vector(0, -100.5, -1), 100, new Lambertian(new Vector(0.2, 0.8, 0.2))));
-        world.add(new Sphere(new Vector(1, 0, -1.5), 0.5, new Lambertian(new Vector(0.2, 0.5, 0.8))));
+        var groundMaterial = new Lambertian(new Vector(0.8, 0.8, 0.0));
+        var centerMaterial = new Lambertian(new Vector(0.1, 0.2, 0.5));
+        var leftMaterial = new Dielectric(1.5);
+        var rightMaterial = new Metal(new Vector(0.8, 0.6, 0.2), 0.0);
+
+        world.add(new Sphere(new Vector(0, -100.5, -1), 100, groundMaterial));
+        world.add(new Sphere(new Vector(0, 0, -1), 0.5, centerMaterial));
+        world.add(new Sphere(new Vector(-1, 0, -1), 0.5, leftMaterial));
+        world.add(new Sphere(new Vector(-1, 0, -1), -0.4, leftMaterial));
+        world.add(new Sphere(new Vector(1, 0, -1), 0.5, rightMaterial));
     }
 
     private void renderPixel(int x, int y, PixelSampler sampler) {
@@ -45,15 +54,15 @@ public class RTRenderer implements Renderer {
 
     private int normalizeColor(Vector pixelColor) {
         // gamma correction
-        double r = Math.sqrt(pixelColor.x());
-        double g = Math.sqrt(pixelColor.y());
-        double b = Math.sqrt(pixelColor.z());
-
+        double scale = 1.0 / sampler.samples();
+        double r = Math.sqrt(scale * pixelColor.x());
+        double g = Math.sqrt(scale * pixelColor.y());
+        double b = Math.sqrt(scale * pixelColor.z());
 
         return new Color(
-                (int)(r * 256),
-                (int)(g * 256),
-                (int)(b * 256)).getRGB();
+                (int)(RTUtilities.clamp(r, 0, 0.999) * 256),
+                (int)(RTUtilities.clamp(g, 0, 0.999) * 256),
+                (int)(RTUtilities.clamp(b, 0, 0.999) * 256)).getRGB();
     }
 
     @Override
@@ -70,7 +79,7 @@ public class RTRenderer implements Renderer {
     @Override
     public void renderAsync() {
         //sampler = new SingleSampler(camera, IMAGE_WIDTH, IMAGE_HEIGHT);
-        sampler = new RandomMultiSampler(10, camera, IMAGE_WIDTH, IMAGE_HEIGHT);
+        sampler = new RandomMultiSampler(4, camera, IMAGE_WIDTH, IMAGE_HEIGHT);
         Executors.newSingleThreadExecutor().submit(() -> {
             for (int y = IMAGE_HEIGHT - 1; y >= 0; y--) {
                 for (int x = 0; x < IMAGE_WIDTH; x++) {

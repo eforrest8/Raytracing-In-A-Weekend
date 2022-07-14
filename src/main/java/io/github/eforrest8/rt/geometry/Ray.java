@@ -36,12 +36,12 @@ public class Ray {
         return white.add(blue);
     }
 
-    private Vector getDiffuseColor(int depth, Hit hit, Hittable hittable) {
+    private Vector getDiffuseColor(int depth, Hit hit, Hittable world) {
         //Vector target = hit.p.add(hit.normal).add(RTUtilities.randomInUnitSphere()); //lambertian approximation
         Optional<Ray> target = hit.material.scatter(this, hit);
         if (target.isEmpty()) {
             return new Vector(0,0,0);
         }
-        return target.get().rayColor(hittable, depth - 1).multiply(0.5).multiply(hit.material.attenuation(this, hit));
+        return target.get().rayColor(world, depth - 1).multiply(hit.material.attenuation(this, hit));
     }
 }
