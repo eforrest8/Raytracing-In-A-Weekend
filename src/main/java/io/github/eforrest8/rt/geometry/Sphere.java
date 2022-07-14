@@ -1,16 +1,19 @@
 package io.github.eforrest8.rt.geometry;
 
+import io.github.eforrest8.rt.materials.Material;
+
 import java.util.Optional;
-import java.util.OptionalDouble;
 
 public class Sphere implements Hittable {
 
     public Vector center;
     public double radius;
+    public Material material;
 
-    public Sphere(Vector center, double radius) {
+    public Sphere(Vector center, double radius, Material material) {
         this.center = center;
         this.radius = radius;
+        this.material = material;
     }
 
     @Override
@@ -37,9 +40,9 @@ public class Sphere implements Hittable {
         
         return Optional.of(new Hit(
                 ray,
-                this,
                 root,
-                this::getNormal));
+                this::getNormal,
+                this.material));
     }
 
     public Vector getNormal(Vector p) {

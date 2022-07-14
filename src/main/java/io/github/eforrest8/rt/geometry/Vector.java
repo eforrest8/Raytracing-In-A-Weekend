@@ -115,4 +115,9 @@ public class Vector {
     public String toString() {
         return Arrays.toString(elements);
     }
+
+    public boolean isNearZero() {
+        double s = 1e-8;
+        return (Math.abs(get(0)) < s) && (Math.abs(get(1)) < s) && (Math.abs(get(2)) < s);
+    }
 }

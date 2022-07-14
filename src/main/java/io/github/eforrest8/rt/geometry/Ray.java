@@ -1,7 +1,5 @@
 package io.github.eforrest8.rt.geometry;
 
-import io.github.eforrest8.rt.RTUtilities;
-
 import java.util.Optional;
 
 public class Ray {
@@ -40,7 +38,10 @@ public class Ray {
 
     private Vector getDiffuseColor(int depth, Hit hit, Hittable hittable) {
         //Vector target = hit.p.add(hit.normal).add(RTUtilities.randomInUnitSphere()); //lambertian approximation
-        Vector target = hit.p.add(hit.normal).add(RTUtilities.randomUnitVector()); //true lambertian
-        return new Ray(hit.p, target.subtract(hit.p)).rayColor(hittable, depth - 1).multiply(0.5);
+        Optional<Ray> target = hit.material.scatter(this, hit);
+        if (target.isEmpty()) {
+            return new Vector(0,0,0);
+        }
+        return target.get().rayColor(hittable, depth - 1).multiply(0.5).multiply(hit.material.attenuation(this, hit));
     }
 }

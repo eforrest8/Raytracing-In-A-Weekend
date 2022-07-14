@@ -3,9 +3,9 @@ package io.github.eforrest8.rt;
 import io.github.eforrest8.rt.camera.Camera;
 import io.github.eforrest8.rt.camera.PerspectiveCamera;
 import io.github.eforrest8.rt.geometry.HittableList;
-import io.github.eforrest8.rt.geometry.Ray;
 import io.github.eforrest8.rt.geometry.Sphere;
 import io.github.eforrest8.rt.geometry.Vector;
+import io.github.eforrest8.rt.materials.Lambertian;
 import io.github.eforrest8.rt.sampling.PixelSampler;
 import io.github.eforrest8.rt.sampling.RandomMultiSampler;
 import io.github.eforrest8.rt.sampling.SingleSampler;
@@ -32,9 +32,9 @@ public class RTRenderer implements Renderer {
     private final int[] pixels = new int[IMAGE_WIDTH*IMAGE_HEIGHT];
 
     public RTRenderer() {
-        world.add(new Sphere(new Vector(0, 0, -1), 0.5));
-        world.add(new Sphere(new Vector(0, -100.5, -1), 100));
-        world.add(new Sphere(new Vector(1, 0, -1.5), 0.5));
+        world.add(new Sphere(new Vector(0, 0, -1), 0.5, new Lambertian(new Vector(0.8, 0.2, 0.2))));
+        world.add(new Sphere(new Vector(0, -100.5, -1), 100, new Lambertian(new Vector(0.2, 0.8, 0.2))));
+        world.add(new Sphere(new Vector(1, 0, -1.5), 0.5, new Lambertian(new Vector(0.2, 0.5, 0.8))));
     }
 
     private void renderPixel(int x, int y, PixelSampler sampler) {

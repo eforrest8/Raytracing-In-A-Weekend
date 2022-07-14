@@ -1,7 +1,7 @@
 package io.github.eforrest8.rt.geometry;
 
-import java.util.Optional;
-import java.util.function.Consumer;
+import io.github.eforrest8.rt.materials.Material;
+
 import java.util.function.Function;
 
 public class Hit {
@@ -10,9 +10,11 @@ public class Hit {
     public boolean frontFace;
     public Vector p;
     public Vector normal;
+    public Material material;
 
-    public Hit(Ray r, Hittable target, double root, Function<Vector, Vector> normalProvider) {
+    public Hit(Ray r, double root, Function<Vector, Vector> normalProvider, Material material) {
         this.r = r;
+        this.material = material;
         calculate(root, normalProvider);
     }
 
