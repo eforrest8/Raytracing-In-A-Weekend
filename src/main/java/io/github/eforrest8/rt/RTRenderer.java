@@ -31,12 +31,18 @@ public class RTRenderer implements Renderer {
     HittableList fovWorld = new HittableList();
 
     HittableList world = new HittableList();
+
+    // camera stuff
+    Vector lookfrom = new Vector(3,3,2);
+    Vector lookat = new Vector(0,0,-1);
     Camera camera = new PerspectiveCamera(
-            new Vector(-2,2,1),
-            new Vector(0,0,-1),
+            lookfrom,
+            lookat,
             new Vector(0,1,0),
             20,
-            ASPECT_RATIO);
+            ASPECT_RATIO,
+            2.0,
+            (lookfrom.subtract(lookat)).length());
 
     PixelSampler sampler;
 

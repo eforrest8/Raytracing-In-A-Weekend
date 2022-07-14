@@ -26,7 +26,16 @@ public class RTUtilities {
             return p;
         }
     }
+
     public static Vector randomUnitVector() {
         return randomInUnitSphere().unitVector();
+    }
+
+    public static Vector randomInUnitDisc() {
+        while (true) {
+            Vector p =new Vector(randomDouble(-1,1), randomDouble(-1,1), 0);
+            if (p.length_squared() >= 1) continue;
+            return p;
+        }
     }
 }
