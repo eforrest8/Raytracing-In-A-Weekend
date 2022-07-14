@@ -3,6 +3,7 @@ package io.github.eforrest8.rt;
 import io.github.eforrest8.rt.camera.Camera;
 import io.github.eforrest8.rt.camera.PerspectiveCamera;
 import io.github.eforrest8.rt.geometry.HittableList;
+import io.github.eforrest8.rt.geometry.Ray;
 import io.github.eforrest8.rt.geometry.Sphere;
 import io.github.eforrest8.rt.geometry.Vector;
 import io.github.eforrest8.rt.sampling.PixelSampler;

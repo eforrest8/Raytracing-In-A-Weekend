@@ -4,6 +4,7 @@ import io.github.eforrest8.rt.RTUtilities;
 import io.github.eforrest8.rt.camera.Camera;
 import io.github.eforrest8.rt.geometry.Hittable;
 import io.github.eforrest8.rt.camera.PerspectiveCamera;
+import io.github.eforrest8.rt.geometry.HittableList;
 import io.github.eforrest8.rt.geometry.Ray;
 import io.github.eforrest8.rt.geometry.Vector;
 
@@ -22,7 +23,7 @@ public class SingleSampler implements PixelSampler {
     }
 
     @Override
-    public Vector findPixelColor(int x, int y, Hittable world) {
+    public Vector findPixelColor(int x, int y, HittableList world) {
         double u = x / (double)(imageWidth - 1);
         double v = y / (double)(imageHeight - 1);
         Ray r = camera.getRay(u, v);

@@ -17,15 +17,14 @@ public class Ray {
         return origin.add(direction.multiply(t));
     }
 
-    public Vector rayColor(Hittable world, int depth) {
+    public Vector rayColor(Hittable target, int depth) {
         if (depth <= 0) {
             return new Vector(0,0,0);
         }
 
-        Optional<HitRecord> optionalHit = world.hit(this, 0.001, Double.POSITIVE_INFINITY);
-        if (optionalHit.isPresent()) {
-            HitRecord unwrappedHit = optionalHit.get();
-            return getDiffuseColor(world, depth, unwrappedHit);
+        Optional<Hit> hit = target.hit(this, 0.001, Double.POSITIVE_INFINITY);
+        if (hit.isPresent()) {
+            return getDiffuseColor(depth, hit.get(), target);
         }
 
         return getBackgroundColor();
@@ -39,9 +38,9 @@ public class Ray {
         return white.add(blue);
     }
 
-    private Vector getDiffuseColor(Hittable world, int depth, HitRecord unwrappedHit) {
-        //Vector target = unwrappedHit.p.add(unwrappedHit.normal).add(RTUtilities.randomInUnitSphere()); //lambertian approximation
-        Vector target = unwrappedHit.p.add(unwrappedHit.normal).add(RTUtilities.randomUnitVector()); //true lambertian
-        return new Ray(unwrappedHit.p, target.subtract(unwrappedHit.p)).rayColor(world, depth - 1).multiply(0.5);
+    private Vector getDiffuseColor(int depth, Hit hit, Hittable hittable) {
+        //Vector target = hit.p.add(hit.normal).add(RTUtilities.randomInUnitSphere()); //lambertian approximation
+        Vector target = hit.p.add(hit.normal).add(RTUtilities.randomUnitVector()); //true lambertian
+        return new Ray(hit.p, target.subtract(hit.p)).rayColor(hittable, depth - 1).multiply(0.5);
     }
 }

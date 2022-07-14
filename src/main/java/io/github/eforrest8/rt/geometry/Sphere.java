@@ -1,6 +1,7 @@
 package io.github.eforrest8.rt.geometry;
 
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 public class Sphere implements Hittable {
 
@@ -13,7 +14,7 @@ public class Sphere implements Hittable {
     }
 
     @Override
-    public Optional<HitRecord> hit(Ray ray, double t_min, double t_max) {
+    public Optional<Hit> hit(Ray ray, double t_min, double t_max) {
         Vector oc = ray.origin.subtract(center);
         double a = ray.direction.length_squared();
         double half_b = oc.dot(ray.direction);
@@ -33,12 +34,15 @@ public class Sphere implements Hittable {
                 return Optional.empty();
             }
         }
+        
+        return Optional.of(new Hit(
+                ray,
+                this,
+                root,
+                this::getNormal));
+    }
 
-        HitRecord rec = new HitRecord();
-        rec.t = root;
-        rec.p = ray.at(root);
-        Vector outwardNormal = (rec.p.subtract(center)).divide(radius);
-        rec.setFaceNormal(ray, outwardNormal);
-        return Optional.of(rec);
+    public Vector getNormal(Vector p) {
+        return (p.subtract(center)).divide(radius);
     }
 }
