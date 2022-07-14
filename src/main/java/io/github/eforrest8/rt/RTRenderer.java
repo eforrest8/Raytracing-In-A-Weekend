@@ -7,6 +7,7 @@ import io.github.eforrest8.rt.geometry.Sphere;
 import io.github.eforrest8.rt.geometry.Vector;
 import io.github.eforrest8.rt.materials.Dielectric;
 import io.github.eforrest8.rt.materials.Lambertian;
+import io.github.eforrest8.rt.materials.Material;
 import io.github.eforrest8.rt.materials.Metal;
 import io.github.eforrest8.rt.sampling.PixelSampler;
 import io.github.eforrest8.rt.sampling.RandomMultiSampler;
@@ -26,8 +27,16 @@ public class RTRenderer implements Renderer {
     public final int IMAGE_HEIGHT = (int)(IMAGE_WIDTH / ASPECT_RATIO);
 
     // world stuff
+    double R = Math.cos(Math.PI/4);
+    HittableList fovWorld = new HittableList();
+
     HittableList world = new HittableList();
-    Camera camera = new PerspectiveCamera();
+    Camera camera = new PerspectiveCamera(
+            new Vector(-2,2,1),
+            new Vector(0,0,-1),
+            new Vector(0,1,0),
+            20,
+            ASPECT_RATIO);
 
     PixelSampler sampler;
 
@@ -44,6 +53,11 @@ public class RTRenderer implements Renderer {
         world.add(new Sphere(new Vector(-1, 0, -1), 0.5, leftMaterial));
         world.add(new Sphere(new Vector(-1, 0, -1), -0.4, leftMaterial));
         world.add(new Sphere(new Vector(1, 0, -1), 0.5, rightMaterial));
+
+        Material fovLeft = new Lambertian(new Vector(0,0,1));
+        Material fovRight = new Lambertian(new Vector(1,0,0));
+        fovWorld.add(new Sphere(new Vector(-R,0,-1), R, fovLeft));
+        fovWorld.add(new Sphere(new Vector(R,0,-1), R, fovRight));
     }
 
     private void renderPixel(int x, int y, PixelSampler sampler) {

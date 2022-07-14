@@ -4,19 +4,33 @@ import io.github.eforrest8.rt.geometry.Ray;
 import io.github.eforrest8.rt.geometry.Vector;
 
 public class PerspectiveCamera implements Camera {
-    public final double ASPECT_RATIO = 16.0 / 9.0;
-    public double viewportHeight = 2.0;
-    public double viewportWidth = ASPECT_RATIO * viewportHeight;
-    public double focalLength = 1.0;
-    private final Vector origin = new Vector(0d, 0d, 0d);
-    private final Vector horizontal = new Vector(viewportWidth, 0d, 0d);
-    private final Vector vertical = new Vector(0d, viewportHeight, 0d);
-    private final Vector lowerLeftCorner = origin
-            .subtract(horizontal.divide(2))
-            .subtract(vertical.divide(2))
-            .subtract(new Vector(0d, 0d, focalLength));
+    public double viewportHeight;
+    public double viewportWidth;
+    private final Vector origin;
+    private final Vector horizontal;
+    private final Vector vertical;
+    private final Vector lowerLeftCorner;
 
-    public Ray getRay(double u, double v) {
-        return new Ray(origin, lowerLeftCorner.add(horizontal.multiply(u)).add(vertical.multiply(v)).subtract(origin));
+    public PerspectiveCamera(Vector lookfrom, Vector lookat, Vector vup, double vfov, double aspectRatio) {
+        var theta = Math.toRadians(vfov);
+        var h = Math.tan(theta/2);
+        viewportHeight = 2.0 * h;
+        viewportWidth = aspectRatio * viewportHeight;
+
+        Vector w = lookfrom.subtract(lookat).unitVector();
+        Vector u = vup.cross(w).unitVector();
+        Vector v = w.cross(u);
+
+        origin = lookfrom;
+        horizontal = u.multiply(viewportWidth);
+        vertical = v.multiply(viewportHeight);
+        lowerLeftCorner = origin
+                .subtract(horizontal.divide(2))
+                .subtract(vertical.divide(2))
+                .subtract(w);
+    }
+
+    public Ray getRay(double s, double t) {
+        return new Ray(origin, lowerLeftCorner.add(horizontal.multiply(s)).add(vertical.multiply(t)).subtract(origin));
     }
 }

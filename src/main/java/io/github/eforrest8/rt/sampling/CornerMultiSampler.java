@@ -1,7 +1,6 @@
 package io.github.eforrest8.rt.sampling;
 
 import io.github.eforrest8.rt.camera.Camera;
-import io.github.eforrest8.rt.camera.PerspectiveCamera;
 import io.github.eforrest8.rt.geometry.HittableList;
 import io.github.eforrest8.rt.geometry.Ray;
 import io.github.eforrest8.rt.geometry.Vector;
@@ -10,14 +9,15 @@ import java.util.LinkedList;
 
 public class CornerMultiSampler implements PixelSampler {
 
-    private final Camera camera = new PerspectiveCamera();
     private final int imageWidth;
     private final int imageHeight;
     private final Vector[][] samples;
+    private final Camera camera;
 
-    public CornerMultiSampler(int imageWidth, int imageHeight) {
+    public CornerMultiSampler(int imageWidth, int imageHeight, Camera camera) {
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
+        this.camera = camera;
         samples = new Vector[imageWidth][imageHeight];
     }
 
