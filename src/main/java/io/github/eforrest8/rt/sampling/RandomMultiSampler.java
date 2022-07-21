@@ -1,5 +1,6 @@
 package io.github.eforrest8.rt.sampling;
 
+import io.github.eforrest8.rt.Pixel;
 import io.github.eforrest8.rt.camera.Camera;
 import io.github.eforrest8.rt.geometry.HittableList;
 import io.github.eforrest8.rt.geometry.Ray;
@@ -19,7 +20,7 @@ public class RandomMultiSampler implements PixelSampler {
     }
 
     @Override
-    public Vector findPixelColor(int x, int y, HittableList world) {
+    public Pixel findPixelColor(int x, int y, HittableList world) {
         Vector pixelColor = new Vector(0,0,0);
         for (int s = 0; s < numberOfSamples; s++) {
             double u = (x + Math.random()) / (double)(imageWidth - 1);
@@ -27,7 +28,17 @@ public class RandomMultiSampler implements PixelSampler {
             Ray r = camera.getRay(u, v);
             pixelColor = pixelColor.add(r.rayColor(world, 50));
         }
-        return pixelColor;
+        pixelColor = scaleColor(pixelColor);
+        return new Pixel(x, y, pixelColor);
+    }
+    
+    private Vector scaleColor(Vector color) {
+    	double scale = 1.0 / numberOfSamples;
+    	return new Vector(
+    			color.x() * scale,
+    			color.y() * scale,
+    			color.z() * scale
+    			);
     }
 
     @Override

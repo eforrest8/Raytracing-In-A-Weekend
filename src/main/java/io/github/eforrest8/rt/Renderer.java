@@ -1,11 +1,7 @@
 package io.github.eforrest8.rt;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface Renderer {
-    int[] renderSynchronous();
-
-    void renderAsync();
-
-    void cancelAsyncRender();
-
-    int[] getAsyncImage();
+    CompletableFuture<Image> render();
 }
