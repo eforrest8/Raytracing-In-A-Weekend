@@ -11,10 +11,13 @@ import java.util.concurrent.Future;
 
 import io.github.eforrest8.rt.camera.Camera;
 import io.github.eforrest8.rt.camera.PerspectiveCamera;
+import io.github.eforrest8.rt.filter.ConvolutionFilter;
 import io.github.eforrest8.rt.filter.EdgeDetectionFilter;
 import io.github.eforrest8.rt.filter.Filter;
 import io.github.eforrest8.rt.filter.GammaCorrectionFilter;
+import io.github.eforrest8.rt.filter.GreyscaleFilter;
 import io.github.eforrest8.rt.filter.MedianNoiseReductionFilter;
+import io.github.eforrest8.rt.filter.PaddingFilter;
 import io.github.eforrest8.rt.filter.VerticalFlipFilter;
 import io.github.eforrest8.rt.geometry.HittableList;
 import io.github.eforrest8.rt.geometry.Sphere;
@@ -79,10 +82,18 @@ public class MultiStageRenderer implements Renderer {
         Filter edgeDetect = new EdgeDetectionFilter();
         Filter vertFlip = new VerticalFlipFilter();
         Filter denoise = new MedianNoiseReductionFilter();
+        Filter greyscale = new GreyscaleFilter();
+        Filter preConvolvePad = new PaddingFilter(1, 1, 1, 1);
+        Filter sobelConvolve = new ConvolutionFilter(new double[][] {{1,2,1},{0,0,0},{-1,-2,-1}});
+        Filter laplaceConvolve = new ConvolutionFilter(new double[][] {{0,1,0},{1,-4,1},{0,1,0}});
         return CompletableFuture.supplyAsync(this::renderImage)
         		.thenApply(vertFlip::apply)
     			.thenApply(gammaCorrect::apply)
-    			.thenApply(denoise::apply);
+    			.thenApply(denoise::apply)
+    			.thenApply(greyscale::apply)
+    			.thenApply(preConvolvePad::apply)
+    			.thenApply(laplaceConvolve::apply);
+    			//.thenApply(denoise::apply);
     			//.thenApply(edgeDetect::apply);
     }
 
