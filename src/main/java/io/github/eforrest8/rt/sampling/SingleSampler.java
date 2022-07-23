@@ -24,7 +24,7 @@ public class SingleSampler implements PixelSampler {
         double u = x / (double)(imageWidth - 1);
         double v = y / (double)(imageHeight - 1);
         Ray r = camera.getRay(u, v);
-        return new Pixel(x, y, r.rayColor(world, 5));
+        return new Pixel(x, y, r.rayColor(world, 10));
     }
 
     @Override

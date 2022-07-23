@@ -8,15 +8,19 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import io.github.eforrest8.rt.camera.Camera;
 import io.github.eforrest8.rt.camera.PerspectiveCamera;
+import io.github.eforrest8.rt.filter.BilinearUpscaleFilter;
 import io.github.eforrest8.rt.filter.ConvolutionFilter;
 import io.github.eforrest8.rt.filter.EdgeDetectionFilter;
 import io.github.eforrest8.rt.filter.Filter;
 import io.github.eforrest8.rt.filter.GammaCorrectionFilter;
 import io.github.eforrest8.rt.filter.GreyscaleFilter;
 import io.github.eforrest8.rt.filter.MedianNoiseReductionFilter;
+import io.github.eforrest8.rt.filter.NearestUpscaleFilter;
 import io.github.eforrest8.rt.filter.PaddingFilter;
 import io.github.eforrest8.rt.filter.VerticalFlipFilter;
 import io.github.eforrest8.rt.geometry.HittableList;
@@ -53,8 +57,6 @@ public class MultiStageRenderer implements Renderer {
             0.5,
             (lookfrom.subtract(lookat)).length());
 
-    PixelSampler sampler;
-
     private final Pixel[] pixels = new Pixel[IMAGE_WIDTH*IMAGE_HEIGHT];
 
     public MultiStageRenderer() {
@@ -76,32 +78,34 @@ public class MultiStageRenderer implements Renderer {
 
     @Override
     public CompletableFuture<Image> render() {
-        //sampler = new SingleSampler(camera, IMAGE_WIDTH, IMAGE_HEIGHT);
-        sampler = new RandomMultiSampler(4, camera, IMAGE_WIDTH, IMAGE_HEIGHT);
+        PixelSampler maskSampler = new SingleSampler(camera, IMAGE_WIDTH/8, IMAGE_HEIGHT/8);
+        PixelSampler sampler = new RandomMultiSampler(4, camera, IMAGE_WIDTH, IMAGE_HEIGHT);
         Filter gammaCorrect = new GammaCorrectionFilter();
-        Filter edgeDetect = new EdgeDetectionFilter();
         Filter vertFlip = new VerticalFlipFilter();
         Filter denoise = new MedianNoiseReductionFilter();
         Filter greyscale = new GreyscaleFilter();
         Filter preConvolvePad = new PaddingFilter(1, 1, 1, 1);
-        Filter sobelConvolve = new ConvolutionFilter(new double[][] {{1,2,1},{0,0,0},{-1,-2,-1}});
-        Filter laplaceConvolve = new ConvolutionFilter(new double[][] {{0,1,0},{1,-4,1},{0,1,0}});
-        return CompletableFuture.supplyAsync(this::renderImage)
+        //Filter sobelConvolve = new ConvolutionFilter(new double[][] {{1,2,1},{0,0,0},{-1,-2,-1}});
+        Filter laplace = new ConvolutionFilter(new double[][] {{1,1,1},{1,-8,1},{1,1,1}});
+        //Filter boxblur = new ConvolutionFilter(new double[][] {{1,1,1},{1,1,1},{1,1,1}}, 1.0/9.0);
+        Filter upscale = new BilinearUpscaleFilter(IMAGE_HEIGHT, IMAGE_WIDTH);
+        CompletableFuture<Image> result = CompletableFuture
+        		.supplyAsync(() -> renderImage(IMAGE_HEIGHT/8, IMAGE_WIDTH/8, maskSampler))
         		.thenApply(vertFlip::apply)
     			.thenApply(gammaCorrect::apply)
     			.thenApply(denoise::apply)
     			.thenApply(greyscale::apply)
     			.thenApply(preConvolvePad::apply)
-    			.thenApply(laplaceConvolve::apply);
-    			//.thenApply(denoise::apply);
-    			//.thenApply(edgeDetect::apply);
+    			.thenApply(laplace::apply)
+    			.thenApply(upscale::apply);
+        return result;
     }
 
-	private Image renderImage() {
-		Image buffer = new Image(IMAGE_WIDTH, IMAGE_HEIGHT);
+	private Image renderImage(int height, int width, PixelSampler sampler) {
+		Image buffer = new Image(width, height);
 		List<Future<Pixel>> futurePixels = new LinkedList<>();
-		for (int y = IMAGE_HEIGHT - 1; y >= 0; y--) {
-		    for (int x = 0; x < IMAGE_WIDTH; x++) {
+		for (int y = height - 1; y >= 0; y--) {
+		    for (int x = 0; x < width; x++) {
 		        int finalX = x;
 		        int finalY = y;
 		        futurePixels.add(executor.submit(() -> renderPixel(finalX, finalY, sampler)));

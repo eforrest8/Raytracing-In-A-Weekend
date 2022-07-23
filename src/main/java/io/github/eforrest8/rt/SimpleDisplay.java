@@ -21,7 +21,9 @@ public class SimpleDisplay extends JFrame {
         add(label);
         Renderer renderer = new MultiStageRenderer();
         try {
+        	System.out.println("starting render at " + System.currentTimeMillis());
         	io.github.eforrest8.rt.Image render = renderer.render().get();
+        	System.out.println("render finished at " + System.currentTimeMillis());
         	imageSource.newPixels(
                     render.getAsIntArray(),
                     ColorModel.getRGBdefault(),

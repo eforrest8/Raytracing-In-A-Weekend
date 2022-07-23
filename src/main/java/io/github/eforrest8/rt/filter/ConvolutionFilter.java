@@ -7,9 +7,15 @@ import io.github.eforrest8.rt.geometry.Vector;
 public class ConvolutionFilter implements Filter {
 	
 	private final double[][] matrix;
+	private final double scalar;
+	
+	public ConvolutionFilter(double[][] matrix, double scalar) {
+		this.matrix  = matrix;
+		this.scalar = scalar;
+	}
 	
 	public ConvolutionFilter(double[][] matrix) {
-		this.matrix  = matrix;
+		this(matrix, 1);
 	}
 
 	@Override
@@ -30,7 +36,7 @@ public class ConvolutionFilter implements Filter {
 				newColor = newColor.add(image.getPixel(mx + x, my + y).color().multiply(matrix[mx][my]));
 			}
 		}
-		return new Pixel(x, y, newColor);
+		return new Pixel(x, y, newColor.multiply(scalar));
 	}
 
 }
