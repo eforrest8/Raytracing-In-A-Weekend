@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 import java.util.stream.Stream.Builder;
 
+import io.github.eforrest8.rt.geometry.Vector;
+
 public class Image {
 	public Pixel[] pixels;
 	public int width;
@@ -16,6 +18,7 @@ public class Image {
 	}
 	public Image(int width, int height) {
 		this.pixels = new Pixel[width * height];
+		fill(new Vector(0,0,0));
 		this.width = width;
 		this.height = height;
 	}
@@ -66,8 +69,17 @@ public class Image {
 	public int[] getAsIntArray() {
 		return Arrays.stream(pixels).mapToInt(Pixel::getColorAsInt).toArray();
 	}
+	
 	public Stream<Pixel> getAdjacentPixels(Pixel pixel) {
 		return getAdjacentPixels(pixel.x(), pixel.y());
+	}
+	
+	private void fill(Vector color) {
+		for (int x = 0; x < width; x++ ) {
+			for (int y = 0; y < height; y++) {
+				setPixel(new Pixel(x, y, color));
+			}
+		}
 	}
 	
 }

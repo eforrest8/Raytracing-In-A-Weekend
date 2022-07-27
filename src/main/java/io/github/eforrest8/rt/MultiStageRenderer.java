@@ -1,26 +1,19 @@
 package io.github.eforrest8.rt;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import io.github.eforrest8.rt.camera.Camera;
 import io.github.eforrest8.rt.camera.PerspectiveCamera;
 import io.github.eforrest8.rt.filter.BilinearUpscaleFilter;
 import io.github.eforrest8.rt.filter.ConvolutionFilter;
-import io.github.eforrest8.rt.filter.EdgeDetectionFilter;
-import io.github.eforrest8.rt.filter.Filter;
 import io.github.eforrest8.rt.filter.GammaCorrectionFilter;
 import io.github.eforrest8.rt.filter.GreyscaleFilter;
 import io.github.eforrest8.rt.filter.MedianNoiseReductionFilter;
-import io.github.eforrest8.rt.filter.NearestUpscaleFilter;
 import io.github.eforrest8.rt.filter.PaddingFilter;
 import io.github.eforrest8.rt.filter.VerticalFlipFilter;
 import io.github.eforrest8.rt.geometry.HittableList;
@@ -34,8 +27,6 @@ import io.github.eforrest8.rt.sampling.RandomMultiSampler;
 import io.github.eforrest8.rt.sampling.SingleSampler;
 
 public class MultiStageRenderer implements Renderer {
-
-    private final ExecutorService executor = Executors.newFixedThreadPool(16);
 
     //image stuff
     public final double ASPECT_RATIO = 16.0 / 9.0;
@@ -77,7 +68,7 @@ public class MultiStageRenderer implements Renderer {
     }
 
     @Override
-    public CompletableFuture<Image> render() {
+    public Image render() {
         PixelSampler maskSampler = new SingleSampler(camera, IMAGE_WIDTH/8, IMAGE_HEIGHT/8);
         PixelSampler sampler = new RandomMultiSampler(4, camera, IMAGE_WIDTH, IMAGE_HEIGHT);
         Filter gammaCorrect = new GammaCorrectionFilter();
@@ -98,7 +89,7 @@ public class MultiStageRenderer implements Renderer {
     			.thenApply(preConvolvePad::apply)
     			.thenApply(laplace::apply)
     			.thenApply(upscale::apply);
-        return result;
+        return result.join();
     }
 
 	private Image renderImage(int height, int width, PixelSampler sampler) {
@@ -108,7 +99,7 @@ public class MultiStageRenderer implements Renderer {
 		    for (int x = 0; x < width; x++) {
 		        int finalX = x;
 		        int finalY = y;
-		        futurePixels.add(executor.submit(() -> renderPixel(finalX, finalY, sampler)));
+		        futurePixels.add(ForkJoinPool.commonPool().submit(() -> renderPixel(finalX, finalY, sampler)));
 		    }
 		}
 		for (Future<Pixel> pixel : futurePixels) {

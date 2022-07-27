@@ -1,5 +1,6 @@
 package io.github.eforrest8.rt.filter;
 
+import io.github.eforrest8.rt.Filter;
 import io.github.eforrest8.rt.Image;
 import io.github.eforrest8.rt.Pixel;
 import io.github.eforrest8.rt.geometry.Vector;

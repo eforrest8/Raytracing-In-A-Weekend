@@ -131,4 +131,8 @@ public class Vector {
         Vector rOutParallel = n.multiply(-Math.sqrt(Math.abs(1.0 - rOutPerp.length_squared())));
         return rOutPerp.add(rOutParallel);
     }
+    
+    public boolean equals(Vector other) {
+    	return x() == other.x() && y() == other.y() && z() == other.z();
+    }
 }
