@@ -1,29 +1,18 @@
 package io.github.eforrest8.rt;
 
+import io.github.eforrest8.rt.camera.Camera;
+import io.github.eforrest8.rt.camera.PerspectiveCamera;
+import io.github.eforrest8.rt.filter.*;
+import io.github.eforrest8.rt.geometry.Vector;
+import io.github.eforrest8.rt.sampling.MaskedSubSampler;
+import io.github.eforrest8.rt.sampling.PixelSampler;
+import io.github.eforrest8.rt.sampling.SingleSampler;
+
+import javax.swing.*;
 import java.awt.image.ColorModel;
 import java.awt.image.MemoryImageSource;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
-
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-
-import io.github.eforrest8.rt.camera.Camera;
-import io.github.eforrest8.rt.camera.PerspectiveCamera;
-import io.github.eforrest8.rt.filter.BilinearUpscaleFilter;
-import io.github.eforrest8.rt.filter.ConvolutionFilter;
-import io.github.eforrest8.rt.filter.GammaCorrectionFilter;
-import io.github.eforrest8.rt.filter.GreyscaleFilter;
-import io.github.eforrest8.rt.filter.InpaintingFilter;
-import io.github.eforrest8.rt.filter.MedianNoiseReductionFilter;
-import io.github.eforrest8.rt.filter.PaddingFilter;
-import io.github.eforrest8.rt.filter.VerticalFlipFilter;
-import io.github.eforrest8.rt.geometry.Vector;
-import io.github.eforrest8.rt.sampling.MaskedSubSampler;
-import io.github.eforrest8.rt.sampling.PixelSampler;
-import io.github.eforrest8.rt.sampling.RandomSubSampler;
-import io.github.eforrest8.rt.sampling.SingleSampler;
 
 public class SimpleDisplay extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -71,10 +60,11 @@ public class SimpleDisplay extends JFrame {
         Filter preConvolvePad = new PaddingFilter(1, 1, 1, 1);
         //Filter sobelConvolve = new ConvolutionFilter(new double[][] {{1,2,1},{0,0,0},{-1,-2,-1}});
         Filter laplace = new ConvolutionFilter(new double[][] {{1,1,1},{1,-8,1},{1,1,1}});
-        Filter boxblur = new ConvolutionFilter(new double[][] {{1,1,1},{1,1,1},{1,1,1}}, 1.0/9.0);
+        //Filter boxblur = new ConvolutionFilter(new double[][] {{1,1,1},{1,1,1},{1,1,1}}, 1.0/9.0);
         Filter upscale = new BilinearUpscaleFilter(IMAGE_HEIGHT, IMAGE_WIDTH);
         Image mask = upscale.apply(laplace.apply(preConvolvePad.apply(greyscale.apply(denoise.apply(gammaCorrect.apply(maskRenderer.render()))))));
         PixelSampler sampler = new MaskedSubSampler(4, camera, IMAGE_WIDTH, IMAGE_HEIGHT, mask);
+        //PixelSampler rsubsampler = new RandomSubSampler(4, camera, IMAGE_WIDTH, IMAGE_HEIGHT);
         Renderer renderer = new RTRenderer(IMAGE_HEIGHT, IMAGE_WIDTH, sampler);
         Filter inpaint = new InpaintingFilter();
         

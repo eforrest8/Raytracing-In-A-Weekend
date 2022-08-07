@@ -23,8 +23,9 @@ public class RandomSubSampler implements PixelSampler {
     @Override
     public Pixel findPixelColor(int x, int y, HittableList world) {
         Vector pixelColor = new Vector(0,0,0);
-        if (Math.random() < 0.9) {
-        	return new Pixel(x, y, new Vector(0,0,0));
+        if (x == 0 || y == 0 || x == imageWidth-1 || y == imageHeight-1) {
+        } else if (Math.random() > 0.1) {
+        	return new Pixel(x, y, pixelColor);
         }
         for (int s = 0; s < numberOfSamples; s++) {
             double u = (x + Math.random()) / (double)(imageWidth - 1);
